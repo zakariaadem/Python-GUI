@@ -1,19 +1,30 @@
-from typing import Sized
+from turtle import color
 import PySimpleGUI as sg
  
-sg.theme('Reddit')
+# Design pattern 2 - First window remains active
  
-layout = [
-    [sg.Text('My one-shot window.')],
-    [sg.InputText(key='-IN-')],
-    [sg.Submit(), sg.Cancel()]
-]
+def win1_layout():
+    layout = [
+        [sg.Text('Registrering av varer', text_color='black'),],
+        [sg.Text('Varenummer', size =(15, 1)), sg.InputText()],
+        [sg.Text('Produktnavn', size =(15, 1)), sg.InputText()],
+        [sg.Text('Beskrivelse', size =(15, 1)), sg.InputText()],
+        [sg.Text('Pris', size =(15, 1)), sg.InputText()],
+        [sg.Text('Kategori', size =(15, 1)), sg.InputText()],
+        [sg.Text('Lager', size =(15, 1)), sg.InputText()],
+        [sg.Text('Bilde src', size =(15, 1)), sg.InputText()],
+        [sg.Button('Lagre')]
+        ]
  
-window = sg.Window('Dette er tittelen til vinduet',layout, size=(1000, 500))
+    return layout
  
-event, values = window.read()
+
  
-window.close()
-text_input = values['-IN-']
+win1 = sg.Window('Window 1', win1_layout())
  
-sg.popup('You entered', text_input)
+win2_active = False
+while True:
+    ev1, vals1 = win1.read(timeout=100)
+    if ev1 == sg.WIN_CLOSED or ev1 == 'Exit':
+        break
+ 

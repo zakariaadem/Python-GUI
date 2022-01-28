@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
  
 # Design pattern 2 - First window remains active
- 
+
 def win1_layout():
     layout = [
         [sg.Text('Registrering av varer', text_color='black')],
@@ -31,14 +31,33 @@ def win2_layout():
     ]
     return layout
 
+
+def win3_layout():
+    layout = [
+        [sg.Text('Brukernavn', size=(15, 1)), sg.InputText(key='brukernavn', size=(30, 10))],
+        [sg.Text('Passord', size=(15, 1)), sg.InputText(key='passord', size=(30, 10))],
+        [sg.Button('Logg inn', key='logginn')],
+    ]
+
+    return layout
+
+
 win1 = sg.Window('Registrering', win1_layout())
 win2 = sg.Window('Registrering', win2_layout())
+win3 = sg.Window('logg inn', win3_layout(), return_keyboard_events= True, finalize= True)
+win3['passord'].bind("<Return>", "_Enter")
 
- 
+
 while True:
-    ev1, vals1 = win1.read(timeout=100)
-    if ev1 == sg.WIN_CLOSED:
+    ev1, vals1 = win3.read(timeout=100)
+    if ev1 == sg.WIN_CLOSED or ev1 == 'Escape:27':
         break
+    if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
+        if ev1 == 'passord' + '_Enter':
+            win1.read()
+    if ev1 is not None:
+        print(ev1)
+
 
     if ev1 == 'Lagre':
         win1.Hide()

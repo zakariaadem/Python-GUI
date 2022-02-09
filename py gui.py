@@ -6,14 +6,8 @@ mydb = mysql.connector.connect(
     host="localhost",
     user="root",
     passwd="",
-    database="nettbutikk_DB"
-)
+    database="nettbutikk_db")
 mycursor = mydb.cursor()
-sql = "SELECT passord, brukernavn, mobil_nr"
-mycursor.execute(sql)
-myresult = mycursor.fetchall()
-
-print(myresult)
 # Design pattern 2 - First window remains active
 
 
@@ -44,6 +38,7 @@ def win2_layout():
 
 def win3_layout():
     layout = [
+        [sg.Text('Welcome', text_color='black', key='welcome2')],
         [sg.Text('Registrering av varer', text_color='black')],
         [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='Varenummer')],
         [sg.Text('Produktnavn', size=(15, 1)), sg.InputText(key='Produktnavn')],
@@ -60,6 +55,7 @@ def win3_layout():
 
 def win4_layout():
     layout = [
+        [sg.Text('Welcome', text_color='black', key='welcome')],
         [sg.Text('Finn vare', text_color='black')],
         [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='Varenummer_finn')],
         [sg.Button('Finn', key='finn')],
@@ -75,7 +71,6 @@ win2 = sg.Window('Registrering', win2_layout())
 win3 = sg.Window('Registrering', win3_layout())
 win1['passord'].bind("<Return>", "_Enter")
 win4 = sg.Window('Finn', win4_layout())
-tab_win = sg.Window("tabs", tabgrp)
 
 
 logginn_while = True
@@ -86,6 +81,23 @@ while logginn_while:
         logginn_while = False
     if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
         if ev1 == 'passord' + '_Enter' or ev1 == 'logginn':
+            tab_win = sg.Window("tabs", tabgrp, finalize=True)
+
+            bn = vals1['brukernavn']
+            po = vals1['passord']
+            sql = "SELECT brukernavn, passord FROM brukere WHERE brukernavn =%s AND passord = %s"
+            mycursor.execute(sql, (bn, po))
+            myresult = mycursor.fetchall()
+            row_count = mycursor.rowcount
+            if row_count == 1:
+                sql = "SELECT brukernavn FROM brukere WHERE brukernavn =%s AND passord = %s"
+                mycursor.execute(sql, (bn, po))
+                myresult = mycursor.fetchone()
+            myid = myresult[0]
+
+            tab_win['welcome'].update(vals1['brukernavn'])
+            tab_win['welcome2'].update(vals1['brukernavn'])
+
             win1.Close()
             logginn_while = False
             tab_while = True
@@ -95,6 +107,7 @@ while tab_while:
     if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
         tab_while = False
     if ev2 == 'lagre':
+        win3.Hide()
         win2.read(timeout=100)
         win2['Varenummer2'].update(vals2['Varenummer'])
         win2['Produktnavn2'].update(vals2['Produktnavn'])

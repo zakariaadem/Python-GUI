@@ -23,7 +23,6 @@ def win1_layout():
 
 def win2_layout():
     layout = [
-        [sg.Text('Registrering av varer', text_color='black')],
         [sg.Text('Varenummer', size=(15, 1)), sg.Text('', size=(15, 1), key='Varenummer2')],
         [sg.Text('Produktnavn', size=(15, 1)), sg.Text('', size=(15, 1), key='Produktnavn2')],
         [sg.Text('Beskrivelse', size=(15, 1)), sg.Text('', size=(15, 1), key='Beskrivelse2')],
@@ -31,6 +30,7 @@ def win2_layout():
         [sg.Text('Kategori', size=(15, 1)), sg.Text('', size=(15, 1), key='Kategori2')],
         [sg.Text('Lager', size=(15, 1)), sg.Text('', size=(15, 1), key='Lager2')],
         [sg.Text('Bilde src', size=(15, 1)), sg.Text('', size=(15, 1), key='Bilde src2')],
+        [sg.Button('Lagre', key='lagre_win2'), sg.Button('Tilbake', key='bak')],
 
     ]
     return layout
@@ -39,7 +39,6 @@ def win2_layout():
 def win3_layout():
     layout = [
         [sg.Text('Welcome', text_color='black', key='welcome2')],
-        [sg.Text('Registrering av varer', text_color='black')],
         [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='Varenummer')],
         [sg.Text('Produktnavn', size=(15, 1)), sg.InputText(key='Produktnavn')],
         [sg.Text('Beskrivelse', size=(15, 1)), sg.InputText(key='Beskrivelse')],
@@ -56,7 +55,6 @@ def win3_layout():
 def win4_layout():
     layout = [
         [sg.Text('Welcome', text_color='black', key='welcome')],
-        [sg.Text('Finn vare', text_color='black')],
         [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='Varenummer_finn')],
         [sg.Button('Finn', key='finn')],
     ]
@@ -67,9 +65,8 @@ tabgrp = [[sg.TabGroup([[sg.Tab('Finn vare', win4_layout()),
                          sg.Tab('Registrering av vare', win3_layout())]])]]
 
 win1 = sg.Window('logg inn', win1_layout(), return_keyboard_events=True, finalize=True)
-win2 = sg.Window('Registrering', win2_layout())
-win3 = sg.Window('Registrering', win3_layout())
 win1['passord'].bind("<Return>", "_Enter")
+win3 = sg.Window('Registrering', win3_layout())
 win4 = sg.Window('Finn', win4_layout())
 
 
@@ -81,7 +78,8 @@ while logginn_while:
         logginn_while = False
     if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
         if ev1 == 'passord' + '_Enter' or ev1 == 'logginn':
-            tab_win = sg.Window("tabs", tabgrp, finalize=True)
+            tab_win = sg.Window("Nettbutikk", tabgrp, finalize=True)
+            tab_win.bind("<Return>", "_Enter")
 
             bn = vals1['brukernavn']
             po = vals1['passord']
@@ -103,11 +101,14 @@ while logginn_while:
             tab_while = True
 
 while tab_while:
+
     ev2, vals2 = tab_win.read(timeout=100)
     if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
         tab_while = False
-    if ev2 == 'lagre':
-        win3.Hide()
+    if ev2 == 'lagre' or ev2 == '_Enter':
+        win2 = sg.Window('Registrering', win2_layout(), return_keyboard_events=True, finalize=True)
+        win2.bind("<Return>", "_Enter")
+        tab_win.Hide()
         win2.read(timeout=100)
         win2['Varenummer2'].update(vals2['Varenummer'])
         win2['Produktnavn2'].update(vals2['Produktnavn'])
@@ -116,8 +117,12 @@ while tab_while:
         win2['Kategori2'].update(vals2['Kategori'])
         win2['Lager2'].update(vals2['Lager'])
         win2['Bilde src2'].update(vals2['Bilde src'])
+        ev3, vals3 = win2()
 
-
+        if ev3 == 'lagre_win2' or ev3 == '_Enter':
+            break
+        if ev3 == 'bak':
+            tab_win.UnHide()
 
 
 

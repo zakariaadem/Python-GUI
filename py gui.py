@@ -72,98 +72,100 @@ def win5_layout():
 
 
 
+
+def login_function():
+    global tab_while, tab_win
+    win1 = sg.Window('logg inn', win1_layout(), return_keyboard_events=True, finalize=True)
+    win1['passord'].bind("<Return>", "_Enter")
+
+    logginn_while = True
+    while logginn_while:
+        ev1, vals1 = win1.read(timeout=100)
+        if ev1 == sg.WIN_CLOSED or ev1 == 'Escape:27':
+            logginn_while = False
+        if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
+            if ev1 == 'passord' + '_Enter' or ev1 == 'logginn':
+                tab_win = sg.Window("Nettbutikk", tabgrp, finalize=True)
+                tab_win.bind("<Return>", "_Enter")
+                bn = vals1['brukernavn']
+                po = vals1['passord']
+                sql = "SELECT brukernavn, passord FROM brukere WHERE brukernavn =%s AND passord = %s"
+                mycursor.execute(sql, (bn, po))
+                myresult = mycursor.fetchall()
+                row_count = mycursor.rowcount
+                if row_count == 1:
+                    sql = "SELECT brukernavn FROM brukere WHERE brukernavn =%s AND passord = %s"
+                    mycursor.execute(sql, (bn, po))
+                    myresult = mycursor.fetchone()
+                myid = myresult[0]
+                tab_win['welcome'].update(vals1['brukernavn'])
+                tab_win['welcome2'].update(vals1['brukernavn'])
+                win1.Close()
+                logginn_while = False
+                tab_while = True
+
+    if tab_while == True:
+        tab_function()
+
+def tab_function():
+    global tab_while
+    while tab_while:
+
+        ev2, vals2 = tab_win.read(timeout=100)
+        if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
+            tab_while = False
+        if not vals2['ny_bn'] == '':
+            if ev2 == 'lagre_ny_bn' or ev2 == '_Enter':
+                brukernavn = vals2['ny_bn']
+                passord = vals2['ny_po']
+                mobil_nr = vals2['ny_mn']
+                sql = "INSERT INTO brukere(brukernavn, passord, mobil_nr) VALUES (%s, %s, %s)"
+                val = (brukernavn, passord, mobil_nr)
+                mycursor.execute(sql, val)
+                mydb.commit()
+                tab_while = False
+                tab_win.Close()
+                login_function()
+
+        if not vals2['Varenummer'] == '':
+            if ev2 == 'lagre' or ev2 == '_Enter':
+                vare_nr = vals2['Varenummer']
+                produktnavn = vals2['Produktnavn']
+                beskrivelse = vals2['Beskrivelse']
+                pris = vals2['Pris']
+                kategori = vals2['Kategori']
+                bilde = vals2['Bilde src']
+                lager_nr = vals2['Lager']
+                sql = "INSERT INTO varer(vare_nr, produktnavn, beskrivelse, pris, kategori, bilde, lager_nr) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                val = (vare_nr, produktnavn, beskrivelse, pris, kategori, bilde, lager_nr)
+                mycursor.execute(sql, val)
+                mydb.commit()
+                win2 = sg.Window('Registrering', win2_layout(), return_keyboard_events=True, finalize=True)
+                win2.bind("<Return>", "_Enter")
+                tab_win.Hide()
+                win2.read(timeout=100)
+                win2['Varenummer2'].update(vals2['Varenummer'])
+                win2['Produktnavn2'].update(vals2['Produktnavn'])
+                win2['Beskrivelse2'].update(vals2['Beskrivelse'])
+                win2['Pris2'].update(vals2['Pris'])
+                win2['Kategori2'].update(vals2['Kategori'])
+                win2['Lager2'].update(vals2['Lager'])
+                win2['Bilde src2'].update(vals2['Bilde src'])
+                ev3, vals3 = win2()
+                if ev3 == 'lagre_win2' or ev3 == '_Enter':
+                    tab_win.UnHide()
+
+                if ev3 == 'bak':
+                    tab_win.UnHide()
+
+
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn vare', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),
                          sg.Tab('Registrer ny bruker', win5_layout())]])]]
-
-win1 = sg.Window('logg inn', win1_layout(), return_keyboard_events=True, finalize=True)
-win1['passord'].bind("<Return>", "_Enter")
 win3 = sg.Window('Registrering', win3_layout())
 win4 = sg.Window('Finn', win4_layout())
 win5 = sg.Window('ny bruker', win5_layout())
 
 
-logginn_while = True
-tab_while = False
-while logginn_while:
-    ev1, vals1 = win1.read(timeout=100)
-    if ev1 == sg.WIN_CLOSED or ev1 == 'Escape:27':
-        logginn_while = False
-    if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
-        if ev1 == 'passord' + '_Enter' or ev1 == 'logginn':
-            tab_win = sg.Window("Nettbutikk", tabgrp, finalize=True)
-            tab_win.bind("<Return>", "_Enter")
-
-            bn = vals1['brukernavn']
-            po = vals1['passord']
-            sql = "SELECT brukernavn, passord FROM brukere WHERE brukernavn =%s AND passord = %s"
-            mycursor.execute(sql, (bn, po))
-            myresult = mycursor.fetchall()
-            row_count = mycursor.rowcount
-            if row_count == 1:
-                sql = "SELECT brukernavn FROM brukere WHERE brukernavn =%s AND passord = %s"
-                mycursor.execute(sql, (bn, po))
-                myresult = mycursor.fetchone()
-            myid = myresult[0]
-
-            tab_win['welcome'].update(vals1['brukernavn'])
-            tab_win['welcome2'].update(vals1['brukernavn'])
-
-            win1.Close()
-            logginn_while = False
-            tab_while = True
-
-while tab_while:
-
-    ev2, vals2 = tab_win.read(timeout=100)
-    if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
-        tab_while = False
-
-    if ev2 == 'lagre_ny_bn' or ev2 == '_Enter':
-        brukernavn = vals2['ny_bn']
-        passord = vals2['ny_po']
-        mobil_nr = vals2['ny_mn']
-
-
-        sql = "INSERT INTO brukere(brukernavn, passord, mobil_nr) VALUES (%s, %s, %s)"
-        val = (brukernavn, passord, mobil_nr)
-        mycursor.execute(sql, val)
-        mydb.commit()
-        break
-
-    if not vals2['Varenummer'] == '':
-        if ev2 == 'lagre' or ev2 == '_Enter':
-
-            vare_nr = vals2['Varenummer']
-            produkt_navn = vals2['Produktnavn']
-            beskrivelse = vals2['Beskrivelse']
-            pris = vals2['Pris']
-            kategori = vals2['Kategori']
-            bilde = vals2['Bilde src']
-            lager_nr = vals2['Lager']
-
-            sql = "INSERT INTO varer(vare_nr, produkt_navn, beskrivelse, pris, kategori, bilde, lager_nr) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            val = (vare_nr, produkt_navn, beskrivelse, pris, kategori, bilde, lager_nr)
-            mycursor.execute(sql, val)
-            mydb.commit()
-
-            win2 = sg.Window('Registrering', win2_layout(), return_keyboard_events=True, finalize=True)
-            win2.bind("<Return>", "_Enter")
-            tab_win.Hide()
-            win2.read(timeout=100)
-            win2['Varenummer2'].update(vals2['Varenummer'])
-            win2['Produktnavn2'].update(vals2['Produktnavn'])
-            win2['Beskrivelse2'].update(vals2['Beskrivelse'])
-            win2['Pris2'].update(vals2['Pris'])
-            win2['Kategori2'].update(vals2['Kategori'])
-            win2['Lager2'].update(vals2['Lager'])
-            win2['Bilde src2'].update(vals2['Bilde src'])
-            ev3, vals3 = win2()
-
-            if ev3 == 'lagre_win2' or ev3 == '_Enter':
-                break
-            if ev3 == 'bak':
-                tab_win.UnHide()
-
-
+login_function()
 

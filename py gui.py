@@ -70,6 +70,12 @@ def win5_layout():
     ]
     return layout
 
+def win6_layout():
+    layout = [
+        [sg.Text('ny bruker', size=(15, 1)), sg.Text('', size=(15, 1), key='ny_b_win6')],
+        [sg.Button('Tilbake', key='bak_win6')],
+    ]
+    return layout
 
 
 
@@ -77,7 +83,6 @@ def login_function():
     global tab_while, tab_win
     win1 = sg.Window('logg inn', win1_layout(), return_keyboard_events=True, finalize=True)
     win1['passord'].bind("<Return>", "_Enter")
-
     logginn_while = True
     while logginn_while:
         ev1, vals1 = win1.read(timeout=100)
@@ -103,19 +108,18 @@ def login_function():
                 win1.Close()
                 logginn_while = False
                 tab_while = True
-
-    if tab_while == True:
-        tab_function()
+                if tab_while == True:
+                    tab_function()
 
 def tab_function():
     global tab_while
     while tab_while:
-
         ev2, vals2 = tab_win.read(timeout=100)
         if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
             tab_while = False
         if not vals2['ny_bn'] == '':
             if ev2 == 'lagre_ny_bn' or ev2 == '_Enter':
+                tab_win.Hide()
                 brukernavn = vals2['ny_bn']
                 passord = vals2['ny_po']
                 mobil_nr = vals2['ny_mn']
@@ -123,10 +127,17 @@ def tab_function():
                 val = (brukernavn, passord, mobil_nr)
                 mycursor.execute(sql, val)
                 mydb.commit()
-                tab_while = False
-                tab_win.Close()
-                login_function()
-
+                win6 = sg.Window('Registrer ny bruker', win6_layout(), return_keyboard_events=True, finalize=True)
+                win6.bind("<Return>", "_Enter")
+                win6.read(timeout=100)
+                win6['ny_b_win6'].update(vals2['ny_bn'])
+                ev4, vals4 = win6()
+                if ev4 or ev4 == '_Enter'== 'bak_win6':
+                    win6.Close()
+                    tab_win.UnHide()
+                    tab_win['ny_bn'].update('')
+                    tab_win['ny_po'].update('')
+                    tab_win['ny_mn'].update('')
         if not vals2['Varenummer'] == '':
             if ev2 == 'lagre' or ev2 == '_Enter':
                 vare_nr = vals2['Varenummer']
@@ -153,15 +164,24 @@ def tab_function():
                 win2['Bilde src2'].update(vals2['Bilde src'])
                 ev3, vals3 = win2()
                 if ev3 == 'lagre_win2' or ev3 == '_Enter':
+                    win2.Close()
                     tab_win.UnHide()
-
+                    tab_win['Varenummer'].update('')
+                    tab_win['Produktnavn'].update('')
+                    tab_win['Beskrivelse'].update('')
+                    tab_win['Pris'].update('')
+                    tab_win['Kategori'].update('')
+                    tab_win['Lager'].update('')
+                    tab_win['Bilde src'].update('')
                 if ev3 == 'bak':
                     tab_win.UnHide()
 
 
+
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn vare', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),
-                         sg.Tab('Registrer ny bruker', win5_layout())]])]]
+                         sg.Tab('Registrer ny bruker', win5_layout())
+                         ]])]]
 win3 = sg.Window('Registrering', win3_layout())
 win4 = sg.Window('Finn', win4_layout())
 win5 = sg.Window('ny bruker', win5_layout())

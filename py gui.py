@@ -7,7 +7,19 @@ mydb = mysql.connector.connect(
     user="root",
     passwd="",
     database="nettbutikk_db")
-mycursor = mydb.cursor()
+mycursor = mydb.cursor(buffered=True)
+mycursor1 = mydb.cursor(buffered=True)
+mycursor2 = mydb.cursor(buffered=True)
+mycursor3 = mydb.cursor(buffered=True)
+mycursor_varer = mydb.cursor(buffered=True)
+mycursor_varer1 = mydb.cursor(buffered=True)
+mycursor_varer2 = mydb.cursor(buffered=True)
+mycursor_varer3 = mydb.cursor(buffered=True)
+mycursor_varer4 = mydb.cursor(buffered=True)
+mycursor_varer5 = mydb.cursor(buffered=True)
+mycursor_varer6 = mydb.cursor(buffered=True)
+
+
 # Design pattern 2 - First window remains active
 
 
@@ -23,6 +35,7 @@ def win1_layout():
 
 def win2_layout():
     layout = [
+        [sg.Text('lagret', text_color='red', size=(15, 1))],
         [sg.Text('Varenummer', size=(15, 1)), sg.Text('', size=(15, 1), key='Varenummer2')],
         [sg.Text('Produktnavn', size=(15, 1)), sg.Text('', size=(15, 1), key='Produktnavn2')],
         [sg.Text('Beskrivelse', size=(15, 1)), sg.Text('', size=(15, 1), key='Beskrivelse2')],
@@ -55,7 +68,8 @@ def win3_layout():
 def win4_layout():
     layout = [
         [sg.Text('Welcome', text_color='black', key='welcome')],
-        [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='Varenummer_finn')],
+        [sg.Text('Bruker ID', size=(15, 1)), sg.InputText(key='bid_finn')],
+        [sg.Text('Varenummer', size=(15, 1)), sg.InputText(key='vn_finn')],
         [sg.Button('Finn', key='finn')],
     ]
     return layout
@@ -66,21 +80,47 @@ def win5_layout():
         [sg.Text('bruker navn', size=(15, 1)), sg.InputText(key='ny_bn')],
         [sg.Text('passord', size=(15, 1)), sg.InputText(key='ny_po')],
         [sg.Text('mobil nummer', size=(15, 1)), sg.InputText(key='ny_mn')],
+        [sg.Text('Bruker ID', size=(15, 1)), sg.InputText(key='ny_bid')],
         [sg.Button('Lagre', key='lagre_ny_bn')],
     ]
     return layout
 
 def win6_layout():
     layout = [
+        [sg.Text('lagret', text_color='red', size=(15, 1))],
         [sg.Text('ny bruker', size=(15, 1)), sg.Text('', size=(15, 1), key='ny_b_win6')],
         [sg.Button('Tilbake', key='bak_win6')],
     ]
     return layout
 
+def win7_layout():
+    layout = [
+        [sg.Text('Bruker', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7')],
+        [sg.Text('Passord', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_1')],
+        [sg.Text('Mobil nr', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_2')],
+        [sg.Text('Bruker ID', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_3')],
+        [sg.Button('Slett bruker', key='sb_win7'), sg.Button('Tilbake', key='bak_win7')],
+    ]
+    return layout
+
+def win8_layout():
+    layout = [
+        [sg.Text('Varenummer', size=(15, 1)), sg.Text('', size=(15, 1), key='vn_win8')],
+        [sg.Text('produktnavn', size=(15, 1)), sg.Text('', size=(15, 1), key='pn_win8')],
+        [sg.Text('beskrivelse', size=(15, 1)), sg.Text('', size=(15, 1), key='bs_win8')],
+        [sg.Text('pris', size=(15, 1)), sg.Text('', size=(15, 1), key='p_win8')],
+        [sg.Text('kategori', size=(15, 1)), sg.Text('', size=(15, 1), key='ka_win8')],
+        [sg.Text('bilde', size=(15, 1)), sg.Text('', size=(15, 1), key='bl_win8')],
+        [sg.Text('lagernummer', size=(15, 1)), sg.Text('', size=(15, 1), key='ln_win8')],
+        [sg.Button('Slett vare', key='sv_win8'), sg.Button('Tilbake', key='bak_win8')],
+
+    ]
+    return layout
 
 
 def login_function():
     global tab_while, tab_win
+    global vals1
     win1 = sg.Window('logg inn', win1_layout(), return_keyboard_events=True, finalize=True)
     win1['passord'].bind("<Return>", "_Enter")
     logginn_while = True
@@ -97,12 +137,14 @@ def login_function():
                 sql = "SELECT brukernavn, passord FROM brukere WHERE brukernavn =%s AND passord = %s"
                 mycursor.execute(sql, (bn, po))
                 myresult = mycursor.fetchall()
-                row_count = mycursor.rowcount
+                #print(myresult)
+                '''row_count = mycursor.rowcount
                 if row_count == 1:
                     sql = "SELECT brukernavn FROM brukere WHERE brukernavn =%s AND passord = %s"
                     mycursor.execute(sql, (bn, po))
                     myresult = mycursor.fetchone()
-                myid = myresult[0]
+                    myid = myresult[0]'''
+
                 tab_win['welcome'].update(vals1['brukernavn'])
                 tab_win['welcome2'].update(vals1['brukernavn'])
                 win1.Close()
@@ -110,9 +152,9 @@ def login_function():
                 tab_while = True
                 if tab_while == True:
                     tab_function()
-
 def tab_function():
     global tab_while
+    global vals2
     while tab_while:
         ev2, vals2 = tab_win.read(timeout=100)
         if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
@@ -123,8 +165,9 @@ def tab_function():
                 brukernavn = vals2['ny_bn']
                 passord = vals2['ny_po']
                 mobil_nr = vals2['ny_mn']
-                sql = "INSERT INTO brukere(brukernavn, passord, mobil_nr) VALUES (%s, %s, %s)"
-                val = (brukernavn, passord, mobil_nr)
+                brukerid = vals2['ny_bid']
+                sql = "INSERT INTO brukere(brukernavn, passord, mobil_nr, brukerid) VALUES (%s, %s, %s, %s)"
+                val = (brukernavn, passord, mobil_nr, brukerid)
                 mycursor.execute(sql, val)
                 mydb.commit()
                 win6 = sg.Window('Registrer ny bruker', win6_layout(), return_keyboard_events=True, finalize=True)
@@ -132,12 +175,13 @@ def tab_function():
                 win6.read(timeout=100)
                 win6['ny_b_win6'].update(vals2['ny_bn'])
                 ev4, vals4 = win6()
-                if ev4 or ev4 == '_Enter'== 'bak_win6':
+                if ev4 == '_Enter' or ev4 == 'bak_win6':
                     win6.Close()
                     tab_win.UnHide()
                     tab_win['ny_bn'].update('')
                     tab_win['ny_po'].update('')
                     tab_win['ny_mn'].update('')
+                    tab_win['ny_bid'].update('')
         if not vals2['Varenummer'] == '':
             if ev2 == 'lagre' or ev2 == '_Enter':
                 vare_nr = vals2['Varenummer']
@@ -174,9 +218,90 @@ def tab_function():
                     tab_win['Lager'].update('')
                     tab_win['Bilde src'].update('')
                 if ev3 == 'bak':
+                    win2.Close()
                     tab_win.UnHide()
-
-
+        if not vals2['bid_finn'] == '':
+            bi_input = vals2['bid_finn']
+            if ev2 == 'finn' or ev2 == '_Enter':
+                se_bn = ("SELECT brukernavn FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor.execute(se_bn)
+                se_po = ("SELECT passord FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor1.execute(se_po)
+                se_mn = ("SELECT mobil_nr FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor2.execute(se_mn)
+                se_bid = ("SELECT brukerid FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor3.execute(se_bid)
+                myresult_fra_brukere = mycursor.fetchall()
+                myresult_fra_brukere1 = mycursor1.fetchall()
+                myresult_fra_brukere2 = mycursor2.fetchall()
+                myresult_fra_brukere3 = mycursor3.fetchall()
+                win7 = sg.Window('Brukere', win7_layout(), return_keyboard_events=True, finalize=True)
+                win7.bind("<Return>", "_Enter")
+                win7.read(timeout=100)
+                tab_win.Hide()
+                win7['bn_win7'].update(myresult_fra_brukere)
+                win7['bn_win7_1'].update(myresult_fra_brukere1)
+                win7['bn_win7_2'].update(myresult_fra_brukere2)
+                win7['bn_win7_3'].update(myresult_fra_brukere3)
+                ev5, vals5 = win7()
+                if ev5 == 'sb_win7':
+                    de_b = ("DELETE FROM brukere Where brukerid =%s;" % bi_input)
+                    mycursor.execute(de_b)
+                    mydb.commit()
+                    tab_win.UnHide()
+                    win7.Close()
+                    tab_win['bid_finn'].update('')
+                if ev5 == 'bak_win7':
+                    tab_win['bid_finn'].update('')
+                    win7.Close()
+                    tab_win.UnHide()
+        if not vals2['vn_finn'] == '':
+            vn_input = vals2['vn_finn']
+            if ev2 == 'finn' or ev2 == '_Enter':
+                se_vn = ("SELECT vare_nr FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer.execute(se_vn)
+                se_pn = ("SELECT produktnavn FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer1.execute(se_pn)
+                se_bs = ("SELECT beskrivelse FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer2.execute(se_bs)
+                se_p = ("SELECT pris FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer3.execute(se_p)
+                se_ka = ("SELECT kategori FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer4.execute(se_ka)
+                se_bl = ("SELECT bilde FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer5.execute(se_bl)
+                se_ln = ("SELECT lager_nr FROM varer Where vare_nr =%s;" % vn_input)
+                mycursor_varer6.execute(se_ln)
+                myresult_fra_varer = mycursor_varer.fetchall()
+                myresult_fra_varer1 = mycursor_varer1.fetchall()
+                myresult_fra_varer2 = mycursor_varer2.fetchall()
+                myresult_fra_varer3 = mycursor_varer3.fetchall()
+                myresult_fra_varer4 = mycursor_varer4.fetchall()
+                myresult_fra_varer5 = mycursor_varer5.fetchall()
+                myresult_fra_varer6 = mycursor_varer6.fetchall()
+                win8 = sg.Window('varer', win8_layout(), return_keyboard_events=True, finalize=True)
+                win8.bind("<Return>", "_Enter")
+                win8.read(timeout=100)
+                tab_win.Hide()
+                win8['vn_win8'].update(myresult_fra_varer)
+                win8['pn_win8'].update(myresult_fra_varer1)
+                win8['bs_win8'].update(myresult_fra_varer2)
+                win8['p_win8'].update(myresult_fra_varer3)
+                win8['ka_win8'].update(myresult_fra_varer4)
+                win8['bl_win8'].update(myresult_fra_varer5)
+                win8['ln_win8'].update(myresult_fra_varer6)
+                ev6, vals6 = win8()
+                if ev6 == 'sv_win8':
+                    de_v = ("DELETE FROM varer Where vare_nr =%s;" % vn_input)
+                    mycursor.execute(de_v)
+                    mydb.commit()
+                    tab_win.UnHide()
+                    win8.Close()
+                    tab_win['vn_finn'].update('')
+                if ev6 == 'bak_win7':
+                    tab_win['vn_finn'].update('')
+                    win8.Close()
+                    tab_win.UnHide()
 
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn vare', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),

@@ -8,17 +8,6 @@ mydb = mysql.connector.connect(
     passwd="",
     database="nettbutikk_db")
 mycursor = mydb.cursor(buffered=True)
-mycursor1 = mydb.cursor(buffered=True)
-mycursor2 = mydb.cursor(buffered=True)
-mycursor3 = mydb.cursor(buffered=True)
-mycursor_varer = mydb.cursor(buffered=True)
-mycursor_varer1 = mydb.cursor(buffered=True)
-mycursor_varer2 = mydb.cursor(buffered=True)
-mycursor_varer3 = mydb.cursor(buffered=True)
-mycursor_varer4 = mydb.cursor(buffered=True)
-mycursor_varer5 = mydb.cursor(buffered=True)
-mycursor_varer6 = mydb.cursor(buffered=True)
-
 
 # Design pattern 2 - First window remains active
 
@@ -225,16 +214,24 @@ def tab_function():
             if ev2 == 'finn' or ev2 == '_Enter':
                 se_bn = ("SELECT brukernavn FROM brukere Where brukerid =%s;" % bi_input)
                 mycursor.execute(se_bn)
-                se_po = ("SELECT passord FROM brukere Where brukerid =%s;" % bi_input)
-                mycursor1.execute(se_po)
-                se_mn = ("SELECT mobil_nr FROM brukere Where brukerid =%s;" % bi_input)
-                mycursor2.execute(se_mn)
-                se_bid = ("SELECT brukerid FROM brukere Where brukerid =%s;" % bi_input)
-                mycursor3.execute(se_bid)
                 myresult_fra_brukere = mycursor.fetchall()
-                myresult_fra_brukere1 = mycursor1.fetchall()
-                myresult_fra_brukere2 = mycursor2.fetchall()
-                myresult_fra_brukere3 = mycursor3.fetchall()
+
+
+                se_po = ("SELECT passord FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor.execute(se_po)
+                myresult_fra_brukere1 = mycursor.fetchall()
+
+
+
+                se_mn = ("SELECT mobil_nr FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor.execute(se_mn)
+                myresult_fra_brukere2 = mycursor.fetchall()
+
+
+                se_bid = ("SELECT brukerid FROM brukere Where brukerid =%s;" % bi_input)
+                mycursor.execute(se_bid)
+                myresult_fra_brukere3 = mycursor.fetchall()
+
                 win7 = sg.Window('Brukere', win7_layout(), return_keyboard_events=True, finalize=True)
                 win7.bind("<Return>", "_Enter")
                 win7.read(timeout=100)
@@ -244,14 +241,14 @@ def tab_function():
                 win7['bn_win7_2'].update(myresult_fra_brukere2)
                 win7['bn_win7_3'].update(myresult_fra_brukere3)
                 ev5, vals5 = win7()
-                if ev5 == 'sb_win7':
+                if ev5 == 'sb_win7' or ev5 == '_Enter':
                     de_b = ("DELETE FROM brukere Where brukerid =%s;" % bi_input)
                     mycursor.execute(de_b)
                     mydb.commit()
                     tab_win.UnHide()
                     win7.Close()
                     tab_win['bid_finn'].update('')
-                if ev5 == 'bak_win7':
+                if ev5 == 'bak_win7' or ev5 == '_Enter':
                     tab_win['bid_finn'].update('')
                     win7.Close()
                     tab_win.UnHide()
@@ -259,26 +256,27 @@ def tab_function():
             vn_input = vals2['vn_finn']
             if ev2 == 'finn' or ev2 == '_Enter':
                 se_vn = ("SELECT vare_nr FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer.execute(se_vn)
+                mycursor.execute(se_vn)
+                myresult_fra_varer = mycursor.fetchall()
                 se_pn = ("SELECT produktnavn FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer1.execute(se_pn)
+                mycursor.execute(se_pn)
+                myresult_fra_varer1 = mycursor.fetchall()
                 se_bs = ("SELECT beskrivelse FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer2.execute(se_bs)
+                mycursor.execute(se_bs)
+                myresult_fra_varer2 = mycursor.fetchall()
                 se_p = ("SELECT pris FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer3.execute(se_p)
+                mycursor.execute(se_p)
+                myresult_fra_varer3 = mycursor.fetchall()
                 se_ka = ("SELECT kategori FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer4.execute(se_ka)
+                mycursor.execute(se_ka)
+                myresult_fra_varer4 = mycursor.fetchall()
                 se_bl = ("SELECT bilde FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer5.execute(se_bl)
+                mycursor.execute(se_bl)
+                myresult_fra_varer5 = mycursor.fetchall()
                 se_ln = ("SELECT lager_nr FROM varer Where vare_nr =%s;" % vn_input)
-                mycursor_varer6.execute(se_ln)
-                myresult_fra_varer = mycursor_varer.fetchall()
-                myresult_fra_varer1 = mycursor_varer1.fetchall()
-                myresult_fra_varer2 = mycursor_varer2.fetchall()
-                myresult_fra_varer3 = mycursor_varer3.fetchall()
-                myresult_fra_varer4 = mycursor_varer4.fetchall()
-                myresult_fra_varer5 = mycursor_varer5.fetchall()
-                myresult_fra_varer6 = mycursor_varer6.fetchall()
+                mycursor.execute(se_ln)
+                myresult_fra_varer6 = mycursor.fetchall()
+
                 win8 = sg.Window('varer', win8_layout(), return_keyboard_events=True, finalize=True)
                 win8.bind("<Return>", "_Enter")
                 win8.read(timeout=100)
@@ -291,19 +289,19 @@ def tab_function():
                 win8['bl_win8'].update(myresult_fra_varer5)
                 win8['ln_win8'].update(myresult_fra_varer6)
                 ev6, vals6 = win8()
-                if ev6 == 'sv_win8':
+                if ev6 == 'sv_win8' or ev6 == '_Enter':
                     de_v = ("DELETE FROM varer Where vare_nr =%s;" % vn_input)
                     mycursor.execute(de_v)
                     mydb.commit()
                     tab_win.UnHide()
                     win8.Close()
                     tab_win['vn_finn'].update('')
-                if ev6 == 'bak_win7':
+                if ev6 == 'bak_win8' or ev6 == '_Enter':
                     tab_win['vn_finn'].update('')
                     win8.Close()
                     tab_win.UnHide()
 
-tabgrp = [[sg.TabGroup([[sg.Tab('Finn vare', win4_layout()),
+tabgrp = [[sg.TabGroup([[sg.Tab('Finn', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),
                          sg.Tab('Registrer ny bruker', win5_layout())
                          ]])]]

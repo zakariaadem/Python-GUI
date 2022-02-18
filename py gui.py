@@ -45,8 +45,8 @@ def win3_layout():
         [sg.Text('Produktnavn', size=(15, 1)), sg.InputText(key='Produktnavn')],
         [sg.Text('Beskrivelse', size=(15, 1)), sg.InputText(key='Beskrivelse')],
         [sg.Text('Pris', size=(15, 1)), sg.InputText(key='Pris')],
-        [sg.Text('Kategori', size=(15, 1)), sg.InputText(key='Kategori')],
-        [sg.Text('Lager', size=(15, 1)), sg.InputText(key='Lager')],
+        [sg.Text('Kategori', size=(15, 1)), sg.Combo(['Skjerm', 'RAM', 'GPU', 'Tastatur', 'Mus', 'PSU', 'Lagring', 'HovedKort'],default_value='CPU', key='Kategori')],
+        [sg.Text('Lager', size=(15, 1)), sg.Combo(['2', '3', '4', '5', '6', '7', '8', '9', '10'], default_value='1',key='Lager')],
         [sg.Text('Bilde src', size=(15, 1)), sg.InputText(key='Bilde src')],
         [sg.Button('Lagre', key='lagre')],
     ]
@@ -106,6 +106,31 @@ def win8_layout():
     ]
     return layout
 
+def win9_layout():
+    layout = [
+        [sg.Button('Vis Varer', key='vv_win9')],
+        [sg.Button('Vis Brukere', key='vb_win9')]
+    ]
+    return layout
+
+
+def table_layout(data=['0', '0']):
+    layout = [
+              [sg.Table(values=data,
+                        key='_ACCOUNTS_',
+                        headings=['Varenummer', 'produktnavn', 'beskrivelse', 'pris', 'kategori', 'bilde', 'lagernummer'],
+                        max_col_width=25,
+                        auto_size_columns=True,
+                        justification='left',
+                        hide_vertical_scroll=True
+                        ),
+               ],
+
+
+              ]
+
+    return layout
+
 
 def login_function():
     global tab_while, tab_win
@@ -148,6 +173,7 @@ def tab_function():
         ev2, vals2 = tab_win.read(timeout=100)
         if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
             tab_while = False
+
         if not vals2['ny_bn'] == '':
             if ev2 == 'lagre_ny_bn' or ev2 == '_Enter':
                 tab_win.Hide()
@@ -300,10 +326,17 @@ def tab_function():
                     tab_win['vn_finn'].update('')
                     win8.Close()
                     tab_win.UnHide()
+        if ev2 == 'vv_win9':
+            sql = "SELECT * FROM varer"
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+            win10 = sg.Window('', table_layout(myresult), return_keyboard_events=True, finalize=True)
+
 
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),
-                         sg.Tab('Registrer ny bruker', win5_layout())
+                         sg.Tab('Registrer ny bruker', win5_layout()),
+                         sg.Tab('Vis', win9_layout()),
                          ]])]]
 win3 = sg.Window('Registrering', win3_layout())
 win4 = sg.Window('Finn', win4_layout())

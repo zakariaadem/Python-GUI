@@ -331,6 +331,7 @@ def tab_function():
             mycursor.execute(sql)
             myresult = mycursor.fetchall()
             win10 = sg.Window('', table_layout(myresult), return_keyboard_events=True, finalize=True)
+            tab_win.Hide()
 
 
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn', win4_layout()),

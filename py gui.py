@@ -117,20 +117,34 @@ def win9_layout():
 def table_layout(data=['0', '0']):
     layout = [
               [sg.Table(values=data,
-                        key='_ACCOUNTS_',
+                        key='varer_table',
                         headings=['Varenummer', 'produktnavn', 'beskrivelse', 'pris', 'kategori', 'bilde', 'lagernummer'],
                         max_col_width=25,
                         auto_size_columns=True,
                         justification='left',
                         hide_vertical_scroll=True
                         ),
+               sg.Button('Tilbake', key='bak_wint'),
                ],
-
-
               ]
 
     return layout
 
+def table2_layout(data=['0', '0']):
+    layout = [
+              [sg.Table(values=data,
+                        key='brukere_table',
+                        headings=['Brukernavn', 'Passord', 'Mobil_nr', 'BrukerID'],
+                        max_col_width=25,
+                        auto_size_columns=True,
+                        justification='left',
+                        hide_vertical_scroll=True
+                        ),
+               sg.Button('Tilbake', key='bak_winb'),
+               ],
+              ]
+
+    return layout
 
 def login_function():
     global tab_while, tab_win
@@ -330,9 +344,22 @@ def tab_function():
             sql = "SELECT * FROM varer"
             mycursor.execute(sql)
             myresult = mycursor.fetchall()
-            win10 = sg.Window('', table_layout(myresult), return_keyboard_events=True, finalize=True)
+            win10 = sg.Window('varer', table_layout(myresult), return_keyboard_events=True, finalize=True)
             tab_win.Hide()
-
+            ev7, vals7 = win10()
+            if ev7 == 'bak_wint':
+                win10.Close()
+                tab_win.UnHide()
+        if ev2 == 'vb_win9':
+            sql = "SELECT * FROM brukere"
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+            win11 = sg.Window('brukere', table2_layout(myresult), return_keyboard_events=True, finalize=True)
+            tab_win.Hide()
+            ev8, vals8 = win11()
+            if ev8 == 'bak_winb':
+                win11.Close()
+                tab_win.UnHide()
 
 tabgrp = [[sg.TabGroup([[sg.Tab('Finn', win4_layout()),
                          sg.Tab('Registrer ny vare', win3_layout()),

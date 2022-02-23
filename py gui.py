@@ -8,7 +8,6 @@ mydb = mysql.connector.connect(
     passwd="",
     database="nettbutikk_db")
 mycursor = mydb.cursor(buffered=True)
-mycursor = mydb.cursor(buffered=True)
 
 # Design pattern 2 - First window remains active
 
@@ -102,7 +101,7 @@ def win8_layout():
         [sg.Text('kategori', size=(15, 1)), sg.Text('', size=(15, 1), key='ka_win8')],
         [sg.Text('bilde', size=(15, 1)), sg.Text('', size=(15, 1), key='bl_win8')],
         [sg.Text('lagernummer', size=(15, 1)), sg.Text('', size=(15, 1), key='ln_win8')],
-        [sg.Button('Slett vare', key='sv_win8'), sg.Button('Tilbake', key='bak_win8'), sg.Button('Rediger', key='red_win8')],
+        [sg.Button('Slett vare', key='sv_win8'), sg.Button('Tilbake', key='bak_win8')],
 
     ]
     return layout
@@ -169,27 +168,32 @@ def login_function():
             logginn_while = False
         if not vals1['brukernavn'] == '' and not vals1['passord'] == '':
             if ev1 == 'passord' + '_Enter' or ev1 == 'logginn':
-                tab_win = sg.Window("Nettbutikk", tabgrp, finalize=True)
-                tab_win.bind("<Return>", "_Enter")
+
                 bn = vals1['brukernavn']
                 po = vals1['passord']
                 sql = "SELECT brukernavn, passord FROM brukere WHERE brukernavn =%s AND passord = %s"
                 mycursor.execute(sql, (bn, po))
                 myresult = mycursor.fetchall()
                 print(myresult)
-                '''row_count = mycursor.rowcount
+                row_count = mycursor.rowcount
+                print(row_count)
                 if row_count == 1:
+                    tab_win = sg.Window("Nettbutikk", tabgrp, finalize=True)
+                    tab_win.bind("<Return>", "_Enter")
                     sql = "SELECT brukernavn FROM brukere WHERE brukernavn =%s AND passord = %s"
                     mycursor.execute(sql, (bn, po))
                     myresult = mycursor.fetchone()
-                    myid = myresult[0]'''
-                tab_win['welcome'].update(vals1['brukernavn'])
-                tab_win['welcome2'].update(vals1['brukernavn'])
-                win1.Close()
-                logginn_while = False
-                tab_while = True
-                if tab_while == True:
-                    tab_function()
+                    myid = myresult[0]
+                    print(myid)
+                    tab_win['welcome'].update(vals1['brukernavn'])
+                    tab_win['welcome2'].update(vals1['brukernavn'])
+                    win1.Close()
+                    logginn_while = False
+                    tab_while = True
+                    if tab_while == True:
+                        tab_function()
+
+
 def tab_function():
     global tab_while
     global vals2
@@ -197,7 +201,6 @@ def tab_function():
         ev2, vals2 = tab_win.read(timeout=100)
         if ev2 == sg.WIN_CLOSED or ev2 == 'Escape:27':
             tab_while = False
-
         if not vals2['ny_bn'] == '':
             if ev2 == 'lagre_ny_bn' or ev2 == '_Enter':
                 tab_win.Hide()
@@ -284,6 +287,10 @@ def tab_function():
                 win7['bn_win7_2'].update(myresult_fra_brukere2)
                 win7['bn_win7_3'].update(myresult_fra_brukere3)
                 ev5, vals5 = win7()
+
+                win12 = sg.Window('Rediger Brukere', win12_layout(), return_keyboard_events=True, finalize=True)
+                ev9, vals9 = win12()
+                win12.bind("<Return>", "_Enter")
                 if ev5 == 'sb_win7':
                     de_b = ("DELETE FROM brukere Where brukerid =%s;" % bi_input)
                     mycursor.execute(de_b)
@@ -292,23 +299,17 @@ def tab_function():
                     win7.Close()
                     tab_win['bid_finn'].update('')
                 if ev5 == 'red_win7':
-                    win12 = sg.Window('Rediger Brukere', win12_layout(), return_keyboard_events=True, finalize=True)
-                    ev9, vals9 = win12()
-                    win12.bind("<Return>", "_Enter")
                     win12.read(timeout=100)
-                    win12['bruker_som_blir_redigert'].update(myresult_fra_brukere)
                     if ev9 == 'lagre_win12':
                         rediger_brukernavn_input = vals9['rd_bn']
-                        rediger_passord_input = vals9['rd_ps']
-                        rediger_mobilnr_input = vals9['rd_mn']
-                        rediger_brukerid_input = vals9['rd_bid']
-                        statement = ("UPDATE brukere SET brukernavn = '%s', passord = '%s', mobil_nr = '%s', brukerid = '%s' Where brukerid = %s;" % (rediger_brukernavn_input, rediger_passord_input, rediger_mobilnr_input, rediger_brukerid_input, bi_input))
-                        mycursor.execute(statement)
+                        sql1 = "UPDATE brukere SET brukernavn = 'rediger_brukernavn_input' WHERE brukerid = '1002'"
+                        mycursor.execute(sql1)
                         mydb.commit()
                         win12.Close()
                         win7.Close()
                         tab_win.UnHide()
                         tab_win['bid_finn'].update('')
+
                 if ev5 == 'bak_win7':
                     tab_win['bid_finn'].update('')
                     win7.Close()
@@ -388,10 +389,11 @@ tabgrp = [[sg.TabGroup([[sg.Tab('Finn', win4_layout()),
                          sg.Tab('Registrer ny bruker', win5_layout()),
                          sg.Tab('Vis', win9_layout()),
                          ]])]]
+
+'''
 win3 = sg.Window('Registrering', win3_layout())
 win4 = sg.Window('Finn', win4_layout())
 win5 = sg.Window('ny bruker', win5_layout())
-
+'''
 
 login_function()
-

@@ -88,7 +88,7 @@ def win7_layout():
         [sg.Text('Passord', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_1')],
         [sg.Text('Mobil nr', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_2')],
         [sg.Text('Bruker ID', size=(15, 1)), sg.Text('', size=(15, 1), key='bn_win7_3')],
-        [sg.Button('Slett bruker', key='sb_win7'), sg.Button('Tilbake', key='bak_win7'), sg.Button('Rediger', key='red_win7')],
+        [sg.Button('Slett bruker', key='sb_win7'), sg.Button('Rediger', key='red_win7'), sg.Button('Tilbake', key='bak_win7')],
     ]
     return layout
 
@@ -146,13 +146,11 @@ def table2_layout(data=['0', '0']):
 
 def win12_layout():
     layout = [
-        [sg.Text('welcome', size=(15, 1), key='bruker_som_blir_redigert')],
-        [sg.Text('Bruker', size=(15, 1)), sg.InputText(key='rd_bn')],
-        [sg.Text('Passord', size=(15, 1)), sg.InputText(key='rd_ps')],
-        [sg.Text('Mobil nr', size=(15, 1)), sg.InputText(key='rd_mn')],
-        [sg.Text('Bruker ID', size=(15, 1)), sg.InputText(key='rd_bid')],
-        [sg.Button('Lagre', key='lagre_win12')],
-
+        [sg.Text('bruker navn', size=(15, 1)), sg.InputText(key='ny_bn_win12')],
+        [sg.Text('passord', size=(15, 1)), sg.InputText(key='ny_po_win12')],
+        [sg.Text('mobil nummer', size=(15, 1)), sg.InputText(key='ny_mn_win12')],
+        [sg.Text('Bruker ID', size=(15, 1)), sg.InputText(key='ny_bid_win12')],
+        [sg.Button('Lagre', key='lagre_ny_bn_win12')],
     ]
     return layout
 
@@ -277,7 +275,6 @@ def tab_function():
                 se_bid = ("SELECT brukerid FROM brukere Where brukerid =%s;" % bi_input)
                 mycursor.execute(se_bid)
                 myresult_fra_brukere3 = mycursor.fetchall()
-
                 win7 = sg.Window('Brukere', win7_layout(), return_keyboard_events=True, finalize=True)
                 win7.bind("<Return>", "_Enter")
                 win7.read(timeout=100)
@@ -287,10 +284,22 @@ def tab_function():
                 win7['bn_win7_2'].update(myresult_fra_brukere2)
                 win7['bn_win7_3'].update(myresult_fra_brukere3)
                 ev5, vals5 = win7()
-
-                win12 = sg.Window('Rediger Brukere', win12_layout(), return_keyboard_events=True, finalize=True)
-                ev9, vals9 = win12()
-                win12.bind("<Return>", "_Enter")
+                if ev5 == 'red_win7':
+                    win12 = sg.Window('Rediger', win12_layout(), return_keyboard_events=True, finalize=True)
+                    win12.bind("<Return>", "_Enter")
+                    win12.read(timeout=100)
+                    tab_win.Hide()
+                    event, values = win12()
+                    if event == 'lagre_ny_bn_win12':
+                        red_bn = values['ny_bn_win12']
+                        sql = ("UPDATE brukere SET brukernavn = '%s' WHERE brukerid = %s;" % (red_bn, bi_input))
+                        mycursor.execute(sql)
+                        mydb.commit()
+                        win12.Close()
+                        win7.Close()
+                        tab_win.UnHide()
+                        tab_win['bid_finn'].update('')
+                        print(red_bn)
                 if ev5 == 'sb_win7':
                     de_b = ("DELETE FROM brukere Where brukerid =%s;" % bi_input)
                     mycursor.execute(de_b)
@@ -298,18 +307,6 @@ def tab_function():
                     tab_win.UnHide()
                     win7.Close()
                     tab_win['bid_finn'].update('')
-                if ev5 == 'red_win7':
-                    win12.read(timeout=100)
-                    if ev9 == 'lagre_win12':
-                        rediger_brukernavn_input = vals9['rd_bn']
-                        sql1 = "UPDATE brukere SET brukernavn = 'rediger_brukernavn_input' WHERE brukerid = '1002'"
-                        mycursor.execute(sql1)
-                        mydb.commit()
-                        win12.Close()
-                        win7.Close()
-                        tab_win.UnHide()
-                        tab_win['bid_finn'].update('')
-
                 if ev5 == 'bak_win7':
                     tab_win['bid_finn'].update('')
                     win7.Close()
